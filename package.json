@@ -1,6 +1,6 @@
 {
 	"name": "kerium",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"description": "POSIX-style errors, logging, and more",
 	"author": "James Prevett <jp@jamespre.dev> (https://jamespre.dev)",
 	"repository": {
