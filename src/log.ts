@@ -5,7 +5,7 @@ import { List } from 'utilium';
 /**
  * The log levels
  */
-export const enum Level {
+export enum Level {
 	/** Emergency */
 	EMERG,
 	/** Alert */
