@@ -426,7 +426,13 @@ export interface ErrnoExceptionJSON {
 }
 
 /**
- * An error with additional information about what happened
+ * An error with additional information about what happened.
+ *
+ * @remarks
+ *
+ * `Error.captureStackTrace` is used when available to hide irrelevant stack frames.
+ * This is being standardized, however it is not available in Deno and behind a flag in Firefox.
+ * See https://github.com/tc39/proposal-error-capturestacktrace for more details.
  */
 export class ErrnoException extends Error implements NodeJS.ErrnoException {
 	declare public stack: string;
@@ -440,6 +446,8 @@ export class ErrnoException extends Error implements NodeJS.ErrnoException {
 	) {
 		super(message);
 		this.code = Errno[errno] as keyof typeof Errno;
+
+		Error.captureStackTrace?.(this, this.constructor);
 	}
 
 	public toString(): string {
@@ -464,6 +472,9 @@ export class ErrnoException extends Error implements NodeJS.ErrnoException {
 	}
 
 	public static With(code: keyof typeof Errno, syscall?: string): ErrnoException {
-		return new ErrnoException(Errno[code], errnoMessages[Errno[code]], syscall);
+		const err = new ErrnoException(Errno[code], errnoMessages[Errno[code]], syscall);
+
+		Error.captureStackTrace?.(err, this);
+		return err;
 	}
 }
