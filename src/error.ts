@@ -464,17 +464,17 @@ export class ErrnoException extends Error implements NodeJS.ErrnoException {
 		};
 	}
 
-	public static fromJSON(json: ErrnoExceptionJSON): ErrnoException {
+	public static fromJSON(this: void, json: ErrnoExceptionJSON): ErrnoException {
 		const err = new ErrnoException(json.errno, json.message, json.syscall);
 		err.code = json.code;
 		err.stack = json.stack;
+		Error.captureStackTrace?.(err, ErrnoException.fromJSON);
 		return err;
 	}
 
-	public static With(code: keyof typeof Errno, syscall?: string): ErrnoException {
+	public static With(this: void, code: keyof typeof Errno, syscall?: string): ErrnoException {
 		const err = new ErrnoException(Errno[code], errnoMessages[Errno[code]], syscall);
-
-		Error.captureStackTrace?.(err, this);
+		Error.captureStackTrace?.(err, ErrnoException.With);
 		return err;
 	}
 }
