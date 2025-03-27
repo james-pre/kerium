@@ -475,7 +475,7 @@ export class ErrnoException extends Error implements NodeJS.ErrnoException {
 /**
  * Shortcut to easily create an `ErrnoException` with a specific error code.
  */
-export function withErrno(this: void, code: keyof typeof Errno, syscall?: string, message?: string): ErrnoException {
+export function withErrno(this: void, code: keyof typeof Errno, message?: string, syscall?: string): ErrnoException {
 	const err = new ErrnoException(Errno[code], message ?? errnoMessages[Errno[code]], syscall);
 	Error.captureStackTrace?.(err, withErrno);
 	return err;
