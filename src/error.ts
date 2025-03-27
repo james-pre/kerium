@@ -468,13 +468,15 @@ export class ErrnoException extends Error implements NodeJS.ErrnoException {
 		const err = new ErrnoException(json.errno, json.message, json.syscall);
 		err.code = json.code;
 		err.stack = json.stack;
-		Error.captureStackTrace?.(err, ErrnoException.fromJSON);
 		return err;
 	}
+}
 
-	public static With(this: void, code: keyof typeof Errno, syscall?: string): ErrnoException {
-		const err = new ErrnoException(Errno[code], errnoMessages[Errno[code]], syscall);
-		Error.captureStackTrace?.(err, ErrnoException.With);
-		return err;
-	}
+/**
+ * Shortcut to easily create an `ErrnoException` with a specific error code.
+ */
+export function withErrno(this: void, code: keyof typeof Errno, syscall?: string, message?: string): ErrnoException {
+	const err = new ErrnoException(Errno[code], message ?? errnoMessages[Errno[code]], syscall);
+	Error.captureStackTrace?.(err, withErrno);
+	return err;
 }
