@@ -443,7 +443,7 @@ export function setUVMessage<T extends ExceptionJSON>(ex: T): T {
 
 	if (ex.path) message += ` '${ex.path}'`;
 	if (ex.dest) message += ` -> '${ex.dest}'`;
-	if (ex.message) message += ` (${ex.message})`;
+	if (ex.message && ex.message !== errnoMessages[ex.errno]) message += ` (${ex.message})`;
 
 	ex.message = message;
 	return ex;
@@ -548,7 +548,10 @@ export function withErrno(this: void, code: keyof typeof Errno, message?: string
 export function rethrow(syscall: string, path?: string, dest?: string): (e: Exception) => never;
 export function rethrow(extra: ExceptionExtra): (e: Exception) => never;
 export function rethrow(extra: ExceptionExtra | string, path?: string, dest?: string): (e: Exception) => never {
-	const ctx = typeof extra === 'string' ? { syscall: extra, path, dest } : extra;
+	const ctx = typeof extra === 'string' ? { syscall: extra } : extra;
+	if (path) ctx.path = path;
+	if (dest) ctx.dest = dest;
+
 	return function (e: Exception) {
 		Object.assign(e, ctx);
 		setUVMessage(e);
