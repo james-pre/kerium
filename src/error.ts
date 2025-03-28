@@ -435,7 +435,10 @@ export interface ExceptionJSON {
 	syscall?: string;
 }
 
-function setUVMessage(ex: ExceptionJSON): void {
+/**
+ * Set the message of an exception to the UV-style message.
+ */
+export function setUVMessage<T extends ExceptionJSON>(ex: T): T {
 	let message = `${ex.code}: ${errnoMessages[ex.errno]}, ${ex.syscall}`;
 
 	if (ex.path) message += ` '${ex.path}'`;
@@ -443,6 +446,7 @@ function setUVMessage(ex: ExceptionJSON): void {
 	if (ex.message) message += ` (${ex.message})`;
 
 	ex.message = message;
+	return ex;
 }
 
 /**
