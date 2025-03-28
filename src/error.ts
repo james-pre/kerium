@@ -545,9 +545,12 @@ export function withErrno(this: void, code: keyof typeof Errno, message?: string
 	return err;
 }
 
-export function rethrow(extra: ExceptionExtra) {
+export function rethrow(syscall: string, path?: string, dest?: string): (e: Exception) => never;
+export function rethrow(extra: ExceptionExtra): (e: Exception) => never;
+export function rethrow(extra: ExceptionExtra | string, path?: string, dest?: string): (e: Exception) => never {
+	const ctx = typeof extra === 'string' ? { syscall: extra, path, dest } : extra;
 	return function (e: Exception) {
-		Object.assign(e, extra);
+		Object.assign(e, ctx);
 		setUVMessage(e);
 		throw e;
 	};
