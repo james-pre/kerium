@@ -487,7 +487,7 @@ export class Exception extends Error implements NodeJS.ErrnoException, Exception
 
 		super(message);
 		this.code = code;
-		Object.assign(this, omit(ctx, 'message', 'path', 'dest'));
+		Object.assign(this, omit(ctx, 'message'));
 
 		Error.captureStackTrace?.(this, this.constructor);
 	}
