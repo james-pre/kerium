@@ -443,7 +443,7 @@ export function setUVMessage<T extends ExceptionJSON>(ex: T): T {
 
 	if (ex.path) message += ` '${ex.path}'`;
 	if (ex.dest) message += ` -> '${ex.dest}'`;
-	if (ex.message && ex.message !== errnoMessages[ex.errno]) message += ` (${ex.message})`;
+	if (ex.message && !ex.message.startsWith(errnoMessages[ex.errno])) message += ` (${ex.message})`;
 
 	ex.message = message;
 	return ex;
@@ -478,16 +478,11 @@ export class Exception extends Error implements NodeJS.ErrnoException, Exception
 	) {
 		const code = Errno[errno] as keyof typeof Errno;
 
-		if (message === false) {
-			message = `${code}: ${errnoMessages[errno]}, ${ctx.syscall}`;
+		super(message || '');
 
-			if (ctx.path) message += ` '${ctx.path}'`;
-			if (ctx.dest) message += ` -> '${ctx.dest}'`;
-		}
-
-		super(message);
 		this.code = code;
 		Object.assign(this, omit(ctx, 'message'));
+		if (!message) setUVMessage(this);
 
 		Error.captureStackTrace?.(this, this.constructor);
 	}
@@ -537,7 +532,7 @@ export function UV(
 }
 
 /**
- * Shortcut to easily create an `ErrnoException` with a specific error code.
+ * Shortcut to easily create an `Exception` with a specific error code.
  */
 export function withErrno(this: void, code: keyof typeof Errno, message?: string): Exception {
 	const err = new Exception(Errno[code], message ?? errnoMessages[Errno[code]]);
