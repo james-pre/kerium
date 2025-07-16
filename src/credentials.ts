@@ -4,8 +4,7 @@
 /**
  * Credentials used for various operations.
  * Similar to Linux's cred struct.
- * @category Internals
- * @see https://github.com/torvalds/linux/blob/master/include/linux/cred.h
+ * @see Linux include/linux/cred.h
  */
 export interface Credentials {
 	uid: number;
@@ -22,7 +21,6 @@ export interface Credentials {
 
 /**
  * Initialization for a set of credentials
- * @category Internals
  */
 export interface CredentialsInit extends Partial<Credentials> {
 	uid: number;
@@ -30,7 +28,6 @@ export interface CredentialsInit extends Partial<Credentials> {
 }
 
 /**
- * @category Internals
  */
 export function createCredentials(source: CredentialsInit): Credentials {
 	return {
@@ -46,7 +43,6 @@ export function createCredentials(source: CredentialsInit): Credentials {
 /**
  * Returns true if the credentials can be used for an operation that requires root privileges.
  * @internal
- * @category Internals
  */
 export function credentialsAllowRoot(cred?: Credentials): boolean {
 	if (!cred) return false;

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later WITH EXCEPTIONS
 // Copyright (c) 2025 James Prevett
 
-import { omit } from 'utilium';
-
 /**
  * Standard POSIX error codes.
  * @see https://en.wikipedia.org/wiki/Errno.h
@@ -407,152 +405,19 @@ const errnoMessages = {
 	[Errno.EHWPOISON]: 'Memory page has hardware error',
 } as const satisfies Record<Errno, string>;
 
+type ErrName<T extends Errno> = T extends (typeof Errno)[infer K extends keyof typeof Errno] ? K : keyof typeof Errno;
+
+export function errname<const T extends Errno>(err: T): ErrName<T> {
+	return Errno[err] as ErrName<T>;
+}
+
 type ErrnoMessage<T extends Errno | keyof typeof Errno> = (typeof errnoMessages)[T extends Errno
 	? T
 	: T extends keyof typeof Errno
 		? (typeof Errno)[T]
-		: ''];
+		: string];
 
 export function strerror<const T extends Errno | keyof typeof Errno>(errno: T): ErrnoMessage<T> {
 	const _errno: Errno = typeof errno == 'string' ? Errno[errno] : errno;
 	return (_errno in errnoMessages ? errnoMessages[_errno] : '') as ErrnoMessage<T>;
-}
-
-export interface ExceptionExtra {
-	path?: string;
-	dest?: string;
-	syscall?: string;
-	[k: string]: any;
-}
-
-/**
- * JSON representation of an error.
- */
-export interface ExceptionJSON {
-	errno: Errno;
-	message: string;
-	code: keyof typeof Errno;
-	stack: string;
-	path?: string;
-	dest?: string;
-	syscall?: string;
-}
-
-/**
- * Set the message of an exception to the UV-style message.
- */
-export function setUVMessage<T extends ExceptionJSON>(ex: T): T {
-	let message = `${ex.code}: ${errnoMessages[ex.errno]}, ${ex.syscall}`;
-
-	if (ex.path) message += ` '${ex.path}'`;
-	if (ex.dest) message += ` -> '${ex.dest}'`;
-	if (ex.message && !ex.message.startsWith(errnoMessages[ex.errno])) message += ` (${ex.message})`;
-
-	ex.message = message;
-	return ex;
-}
-
-/**
- * An error with additional information about what happened.
- *
- * @privateRemarks
- *
- * This is modeled after Node.js's `ErrnoException` and `UVException`.
- *
- * `Error.captureStackTrace` is used when available to hide irrelevant stack frames.
- * This is being standardized, however it is not available in Deno and behind a flag in Firefox.
- * See https://github.com/tc39/proposal-error-capturestacktrace for more details.
- */
-export class Exception extends Error implements ExceptionJSON {
-	declare public stack: string;
-
-	public code: keyof typeof Errno;
-
-	public path?: string;
-	public dest?: string;
-	public syscall?: string;
-
-	public constructor(errno: Errno, message: false, context: ExceptionExtra);
-	public constructor(errno: Errno, message?: string);
-	public constructor(
-		public errno: Errno,
-		message?: string | false,
-		ctx: ExceptionExtra = {}
-	) {
-		const code = Errno[errno] as keyof typeof Errno;
-
-		super(message || '');
-
-		this.code = code;
-		Object.assign(this, omit(ctx, 'message'));
-		if (!message) setUVMessage(this);
-
-		Error.captureStackTrace?.(this, this.constructor);
-	}
-
-	public toString(): string {
-		return this.message;
-	}
-
-	public toJSON(): ExceptionJSON {
-		const json: ExceptionJSON = {
-			errno: this.errno,
-			code: this.code,
-			stack: this.stack,
-			message: this.message,
-		};
-
-		if (this.path) json.path = this.path;
-		if (this.dest) json.dest = this.dest;
-		if (this.syscall) json.syscall = this.syscall;
-
-		return json;
-	}
-
-	public static fromJSON(this: void, json: ExceptionJSON): Exception {
-		const err = json.syscall ? new Exception(json.errno, false, json) : new Exception(json.errno, json.message);
-		err.stack = json.stack;
-		return err;
-	}
-}
-
-/**
- * Shortcut for UV-style exceptions.
- */
-export function UV(this: void, code: keyof typeof Errno, syscall: string, path?: string, dest?: string): Exception;
-export function UV(this: void, code: keyof typeof Errno, context?: ExceptionExtra): Exception;
-export function UV(
-	this: void,
-	code: keyof typeof Errno,
-	context?: ExceptionExtra | string,
-	path?: string,
-	dest?: string
-): Exception {
-	if (typeof context === 'string') context = { syscall: context, path, dest };
-	const err = new Exception(Errno[code], false, context ?? {});
-	Error.captureStackTrace?.(err, UV);
-	return err;
-}
-
-/**
- * Shortcut to easily create an `Exception` with a specific error code.
- */
-export function withErrno(this: void, code: keyof typeof Errno, message?: string): Exception {
-	const err = new Exception(Errno[code], message ?? errnoMessages[Errno[code]]);
-	Error.captureStackTrace?.(err, withErrno);
-	return err;
-}
-
-export function rethrow(syscall: string, path?: string, dest?: string): (e: Exception) => never;
-export function rethrow(extra: ExceptionExtra): (e: Exception) => never;
-export function rethrow(extra: ExceptionExtra | string, path?: string, dest?: string): (e: Exception) => never {
-	const ctx = typeof extra === 'string' ? { syscall: extra } : extra;
-	if (path) ctx.path = path;
-	if (dest) ctx.dest = dest;
-
-	return function (e: Exception) {
-		Object.assign(e, ctx);
-		setUVMessage(e);
-		throw e;
-	};
 }
