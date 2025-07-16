@@ -60,6 +60,9 @@ jobs:
             - name: Install dependencies
               run: npm install
 
+            - name: Install dependencies (non-gpl)
+              run: npm install --prefix non-gpl
+
             - name: Build
               run: npx tsc
 

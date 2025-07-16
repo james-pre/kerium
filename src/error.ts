@@ -452,12 +452,6 @@ export function setUVMessage<T extends ExceptionJSON>(ex: T): T {
 	return ex;
 }
 
-declare global {
-	interface ErrorConstructor {
-		captureStackTrace?(targetObject: object, constructorOpt?: Function): void;
-	}
-}
-
 /**
  * An error with additional information about what happened.
  *
