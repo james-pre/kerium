@@ -5,6 +5,7 @@
  * Credentials used for various operations.
  * Similar to Linux's cred struct.
  * @see Linux include/linux/cred.h
+ * @todo capabilities?
  */
 export interface Credentials {
 	uid: number;
@@ -13,6 +14,8 @@ export interface Credentials {
 	sgid: number;
 	euid: number;
 	egid: number;
+	fsuid: number;
+	fsgid: number;
 	/**
 	 * List of group IDs.
 	 */
@@ -35,6 +38,8 @@ export function createCredentials(source: CredentialsInit): Credentials {
 		sgid: source.gid,
 		euid: source.uid,
 		egid: source.gid,
+		fsuid: source.uid,
+		fsgid: source.gid,
 		groups: [],
 		...source,
 	};

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later WITH EXCEPTIONS
 // Copyright (c) 2025 James Prevett
 import * as c from './constants.js';
-import type { DEntry } from './dentry.js';
+import type { Dentry } from './dentry.js';
 import type { Superblock } from './super.js';
 
 /**
@@ -84,7 +84,7 @@ export interface Inode {
 }
 
 export interface InodeOperations {
-	lookup(dir: Inode, _dentry: DEntry, flags: number): Promise<DEntry>;
+	lookup(dir: Inode, _dentry: Dentry, flags: number): Promise<Dentry>;
 	/**
 	 * @todo finish this
 	 */

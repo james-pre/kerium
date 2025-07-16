@@ -8,6 +8,8 @@ export default [
 			'@typescript-eslint/no-unsafe-call': 'off',
 			'@typescript-eslint/no-implied-eval': 'off',
 			'@typescript-eslint/no-empty-object-type': 'off',
+			'@typescript-eslint/no-duplicate-enum-values': 'off',
+			'@typescript-eslint/only-throw-error': 'off',
 		},
 	},
 ];

@@ -3,6 +3,9 @@
 	"version": "2.0.0-devel-0",
 	"description": "Complete cross-host emulation of Linux in TypeScript",
 	"author": "James Prevett <jp@jamespre.dev> (https://jamespre.dev)",
+	"bin": {
+		"devel-check-licenses": "scripts/license.js"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/james-pre/kerium.git"
