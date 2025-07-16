@@ -5,6 +5,13 @@
 
 import { List } from 'utilium';
 
+declare global {
+	const performance: {
+		now(): number;
+	};
+	const console: Record<'error' | 'warn' | 'info' | 'debug' | 'log', (...message: any[]) => void>;
+}
+
 /**
  * The log levels
  */
