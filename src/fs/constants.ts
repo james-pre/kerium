@@ -1,6 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-or-later WITH EXCEPTIONS
 /*
+Copyright (c) 2025 James Prevett
+
 FS Constants
-See https://nodejs.org/api/fs.html#file-access-constants
 
 Note: Many of these are pulled from
 https://github.com/torvalds/linux/blob/master/include/uapi/linux/stat.h
@@ -22,17 +24,17 @@ export const X_OK = 1;
 
 // File Copy Constants
 
-/** Constant for fs.copyFile. Flag indicating the destination file should not be overwritten if it already exists. */
+/** Flag indicating the destination file should not be overwritten if it already exists. */
 export const COPYFILE_EXCL = 1;
 
 /**
- * Constant for fs.copyFile. Copy operation will attempt to create a copy-on-write reflink.
+ * Copy operation will attempt to create a copy-on-write reflink.
  * If the underlying platform does not support copy-on-write, then a fallback copy mechanism is used.
  */
 export const COPYFILE_FICLONE = 2;
 
 /**
- * Constant for fs.copyFile. Copy operation will attempt to create a copy-on-write reflink.
+ * Copy operation will attempt to create a copy-on-write reflink.
  * If the underlying platform does not support copy-on-write, then the operation will fail with an error.
  */
 export const COPYFILE_FICLONE_FORCE = 4;
@@ -71,7 +73,7 @@ export const O_APPEND = 0x400; // bit 10
 export const O_DIRECTORY = 0x10000; // bit 16
 
 /**
- * constant for fs.open().
+ * constant for open().
  * Flag indicating reading accesses to the file system will no longer result in
  * an update to the atime information associated with the file.
  * This flag is available on Linux operating systems only.

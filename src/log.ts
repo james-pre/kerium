@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later WITH EXCEPTIONS
+// Copyright (c) 2025 James Prevett
+
 /* Logging utilities. The things in this file are named to work nicely when you import as a namespace. */
 
 import { List } from 'utilium';

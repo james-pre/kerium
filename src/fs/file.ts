@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later WITH EXCEPTIONS
+// Copyright (c) 2025 James Prevett
 import type { Credentials } from '../credentials.js';
 import type { Lock } from '../lock.js';
 import type { KModule } from '../module.js';
