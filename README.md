@@ -24,7 +24,7 @@ If you are making a frontend, or working on a GPL-compatible module, you can ins
 npm install kerium
 ```
 
-For proprietary or non-GPL modules, you _must_ the `kerium-non-gpl` package, which provides a limited set of APIs under the LGPL license:
+For proprietary or non-GPL modules, you _must_ use the `kerium-non-gpl` package, which provides a limited set of APIs under the LGPL license:
 
 ```sh
 npm install kerium-non-gpl
