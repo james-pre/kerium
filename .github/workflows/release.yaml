@@ -63,7 +63,15 @@ jobs:
             - name: Build
               run: npx tsc
 
+            - name: Build non-GPL
+              run: npx tsc -p non-gpl
+
             - name: Publish
               run: npm publish --access=public --provenance
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+
+            - name: Publish non-GPL
+              run: npm publish non-gpl --access=public --provenance
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.npm_token }}

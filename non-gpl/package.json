@@ -1,7 +1,7 @@
 {
-	"name": "kerium",
+	"name": "kerium-non-gpl",
 	"version": "2.0.0-devel-0",
-	"description": "Complete cross-host emulation of Linux in TypeScript",
+	"description": "Complete cross-host emulation of Linux in TypeScript (non-GPL)",
 	"author": "James Prevett <jp@jamespre.dev> (https://jamespre.dev)",
 	"repository": {
 		"type": "git",
@@ -15,7 +15,7 @@
 	"bugs": {
 		"url": "https://github.com/james-pre/kerium/issues"
 	},
-	"license": "GPL-3.0-or-later",
+	"license": "LGPL-3.0-or-later",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -27,13 +27,6 @@
 		"dist",
 		"src"
 	],
-	"scripts": {
-		"format:check": "prettier --check .",
-		"format": "prettier --write .",
-		"lint": "tsc --noEmit && eslint src",
-		"test": "tsx --test",
-		"prepublishOnly": "npx tsc"
-	},
 	"devDependencies": {
 		"@eslint/js": "^9.12.0",
 		"eslint": "^9.12.0",
@@ -41,9 +34,10 @@
 		"tsx": "^4.19.1",
 		"typedoc": "^0.27.6",
 		"typescript": "^5.7.2",
-		"typescript-eslint": "^8.8.0"
+		"typescript-eslint": "^8.8.0",
+		"kerium": "file:.."
 	},
 	"dependencies": {
-		"utilium": "^2.0.0"
+		"kerium": "^2.0.0-devel-0"
 	}
 }
