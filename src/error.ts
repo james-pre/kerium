@@ -460,7 +460,7 @@ export function setUVMessage<T extends ExceptionJSON>(ex: T): T {
  * This is being standardized, however it is not available in Deno and behind a flag in Firefox.
  * See https://github.com/tc39/proposal-error-capturestacktrace for more details.
  */
-export class Exception extends Error implements NodeJS.ErrnoException, ExceptionJSON {
+export class Exception extends Error implements ExceptionJSON {
 	declare public stack: string;
 
 	public code: keyof typeof Errno;

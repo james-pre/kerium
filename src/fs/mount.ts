@@ -1,0 +1,15 @@
+import type { DEntry } from './dentry.js';
+import type { Superblock } from './super.js';
+
+/**
+ * @see Linux include/linux/mount.h `vfsmount`
+ */
+export interface Mount {
+	root: DEntry;
+	sb: Superblock;
+	flags: number;
+	/**
+	 * @todo look into `idmap`s more
+	 */
+	idMap: IDMap;
+}

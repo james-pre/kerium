@@ -1,7 +1,20 @@
 # Kerium
 
-Kerium is a small library containing some POSIX-style code.
-The focus is on providing shared utilities for other projects.
+Kerium is (going to be) a complete cross-host emulator of Linux in TypeScript.
+
+> [!IMPORTANT]
+> Kerium is licensed under the GPL (v3 or later) license.
+> With some [exceptions](./EXCEPTIONS.md), this license applies to your use of the kernel.
+
+# Frontends
+
+Frontends are software layers that provide compatibility with other platforms or programming environments.
+For example, a frontend could run Node.js programs or C/C++ code using Linux syscalls that is compiled to WebAssembly.
+Frontends do not modify the kernel or its modules, and they do not have access to the kernel's internal state.
+
+# Modules
+
+Just like Linux, Kerium allows 3rd-party modules to be loaded at runtime.
 
 # Logging
 
