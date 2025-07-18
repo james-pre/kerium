@@ -22,13 +22,12 @@ export interface File {
 export interface FileOperations {
 	owner: KModule;
 	flags: number;
-	seek?(file: File, offset: bigint, whence: number): Promise<void>;
-	read?(file: File, buf: Uint8Array, offset: bigint, length: number): Promise<number>;
-	write?(file: File, buf: Uint8Array, offset: bigint, length: number): Promise<number>;
+	seek?(file: File, offset: bigint, whence: number): void;
+	read?(file: File, buf: Uint8Array, offset: bigint, length: number): number;
+	write?(file: File, buf: Uint8Array, offset: bigint, length: number): number;
 	// this "fills in" the passed file
-	open?(inode: Inode, mode: number, file: File): Promise<void>;
+	open?(inode: Inode, mode: number, file: File): void;
 	read_iter?(): IterableIterator<Uint8Array>;
-	// ...
 	/**
 	 * @todo finish this
 	 */
