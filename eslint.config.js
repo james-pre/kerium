@@ -10,6 +10,9 @@ export default [
 			'@typescript-eslint/no-empty-object-type': 'off',
 			'@typescript-eslint/no-duplicate-enum-values': 'off',
 			'@typescript-eslint/only-throw-error': 'off',
+			'@typescript-eslint/no-array-delete': 'off',
+			'@typescript-eslint/no-unsafe-enum-comparison': 'off',
+			'no-constant-condition': 'off', // used for config
 		},
 	},
 ];

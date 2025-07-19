@@ -15,7 +15,7 @@ interface _raw_lock {}
  * @todo Convert to a shared struct and use shared `Mutex`es (see https://github.com/tc39/proposal-structs)
  */
 export interface Lock {
-	wait: _raw_lock;
+	mutex: _raw_lock;
 	waiters: any[];
 	owner: Task;
 }
@@ -26,7 +26,7 @@ export interface Lock {
  * and it is coming to the language anyway.
  * For now, just focus on other parts of the kernel.
  */
-export function lock(value: { _lock: Lock }): Disposable {
+export async function lock(value: { _lock: Lock }): Promise<Disposable> {
 	function __unlock() {}
 
 	return Object.assign(__unlock, {

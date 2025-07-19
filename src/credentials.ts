@@ -6,6 +6,7 @@
  * Similar to Linux's cred struct.
  * @see Linux include/linux/cred.h
  * @todo capabilities?
+ * @todo [share]
  */
 export interface Credentials {
 	uid: number;

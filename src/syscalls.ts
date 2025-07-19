@@ -5,12 +5,15 @@ import { Errno as E, strerror, type Errno } from './error.js';
 import { warn } from './log.js';
 import type { Task } from './task.js';
 
-export type Syscall = (this: Task, ...args: any[]) => any;
+export type Syscall = (...args: any[]) => any;
 
 /**
  * Augment this when defining syscalls.
  */
-export interface Syscalls extends Record<string, Syscall> {}
+export interface Syscalls extends Record<string, Syscall> {
+	mkdir(path: string, mode: number): Promise<void>;
+	rmdir(path: string): Promise<void>;
+}
 
 export const syscalls = Object.create(null) as Syscalls;
 
@@ -39,16 +42,16 @@ class SyscallError extends Error {
 
 export type { SyscallError };
 
-export function do_syscall<const Name extends keyof Syscalls>(
+export async function do_syscall<const Name extends keyof Syscalls>(
 	task: Task,
 	name: Name,
 	...args: Parameters<Syscalls[Name]>
-): ReturnType<Syscalls[Name]> {
+): Promise<Awaited<ReturnType<Syscalls[Name]>>> {
 	const syscall = syscalls[name];
 	if (!syscall) throw new SyscallError(E.ENOSYS);
 
 	try {
-		return syscall.apply(task, args);
+		return await syscall.apply(task, args);
 	} catch (ex: unknown) {
 		throw new SyscallError(ex as Errno);
 	}

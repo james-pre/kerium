@@ -6,6 +6,7 @@ import type { Superblock } from './super.js';
 
 /**
  * @see Linux include/linux/mount.h `vfsmount`
+ * @todo [share]
  */
 export interface VFSMount {
 	root: Dentry;
@@ -18,7 +19,7 @@ export interface VFSMount {
 }
 
 /**
- * @todo
+ * @todo [share]
  */
 export interface Mountpoint {
 	dentry: Dentry;
@@ -26,7 +27,7 @@ export interface Mountpoint {
 }
 
 /**
- * @todo
+ * @todo [share]
  */
 export interface Mount {
 	parent: Mount;

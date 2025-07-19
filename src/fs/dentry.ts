@@ -4,6 +4,9 @@ import type { Lock } from '../lock.js';
 import type { Inode } from './inode.js';
 import type { Superblock } from './super.js';
 
+/**
+ * @internal
+ */
 export interface Dentry {
 	_lock: Lock;
 	readonly op: DentryOperations;
@@ -78,6 +81,6 @@ export enum DentryFlags {
  * @todo
  */
 export interface DentryOperations {
-	delete?(dir: Readonly<Dentry>): void;
-	init?(dir: Dentry): void;
+	delete?(dir: Readonly<Dentry>): Promise<void>;
+	init?(dir: Dentry): Promise<void>;
 }
