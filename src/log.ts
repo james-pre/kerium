@@ -106,17 +106,8 @@ function ansi(text: string, format: string): string {
 	return `\x1b[${format}m${text}\x1b[0m`;
 }
 
-function _prettyMs(entry: Entry, style?: 'ansi' | 'css'): string[] {
-	const text = '[' + (entry.elapsedMs / 1000).toFixed(3).padStart(10) + '] ';
-
-	switch (style) {
-		case 'ansi':
-			return [ansi(text, '2;37')];
-		case 'css':
-			return ['%c' + text, 'opacity: 0.8; color: white;'];
-		default:
-			return [text];
-	}
+function timestamp(entry: Entry): string {
+	return '[' + (entry.elapsedMs / 1000).toFixed(3).padStart(10) + '] ';
 }
 
 const levelColor = {
@@ -185,12 +176,14 @@ export interface FormatOptions {
  */
 export function fancy({ style, colorize }: FormatOptions) {
 	return function* (entry: Entry) {
-		yield* _prettyMs(entry, style);
+		if (style == 'css') yield colorize == 'level' ? '%c%s %c%s' : '%c%s %c%s%s %c%s';
+
+		yield* style == 'ansi' ? [ansi(timestamp(entry), '2;37')] : ['opacity: 0.8; color: white;', timestamp(entry)];
 
 		const levelText =
 			style == 'ansi'
 				? [ansi(levels[entry.level].toUpperCase(), levelColor.ansi[entry.level])]
-				: ['%c' + levels[entry.level].toUpperCase(), levelColor.css[entry.level]];
+				: [levelColor.css[entry.level], levels[entry.level].toUpperCase()];
 
 		if (colorize == 'level') {
 			yield* levelText;
@@ -198,17 +191,14 @@ export function fancy({ style, colorize }: FormatOptions) {
 			return;
 		}
 
-		if (entry.level < Level.CRIT) {
-			yield* levelText;
-			yield ': ';
-		}
+		if (entry.level < Level.CRIT) yield* levelText;
 
-		if (colorize == 'message') yield ansi(entry.message, messageColor.ansi[entry.level]);
-		else yield* ['%c' + entry.message, messageColor.css[entry.level]];
+		if (style == 'ansi') yield ansi(entry.message, messageColor.ansi[entry.level]);
+		else yield* [messageColor.css[entry.level], entry.message];
 	};
 }
 
-let _format: (entry: Entry) => string | Iterable<string> = (entry: Entry) => [..._prettyMs(entry), entry.message];
+let _format: (entry: Entry) => string | Iterable<string> = (entry: Entry) => [timestamp(entry), entry.message];
 
 export function format(entry: Entry): string[] {
 	const formatted = _format(entry);
