@@ -6,8 +6,8 @@ import { Errno as E } from '../error.js';
 import { lock } from '../lock.js';
 import { define_syscall } from '../syscalls.js';
 import { current } from '../task.js';
-import type { Dentry } from './dentry.js';
-import { type MountIDMap } from './idmapping.js';
+import { DentryFlags, type Dentry } from './dentry.js';
+import { map_inode_uid, type MountIDMap } from './idmapping.js';
 import { type Inode } from './inode.js';
 import type { VFSMount } from './mount.js';
 import { check_inode_permission, May } from './permissions.js';
@@ -133,7 +133,7 @@ function __legitimize_path(path: Path, seq: number, m_seq: number): boolean {
 }
 
 function legitimize_path(pw: PathWalk, path: Path, seq?: number): boolean {
-	return __legitimize_path(path, seq as any, pw.m_seq);
+	return __legitimize_path(path, seq!, pw.m_seq);
 }
 
 function legitimize_links(pw: PathWalk): boolean {
@@ -192,18 +192,42 @@ export async function check_lookup(idmap: MountIDMap, pw: PathWalk): Promise<voi
 	}
 }
 
-// @ts-expect-error 2355 - finish tomorrow
+enum Walk {
+	None = 0,
+	Trailing = 1,
+	More = 2,
+	NoFollow = 4,
+}
+
+function walk_component(pw: PathWalk, flags: Walk): string {
+	// @todo
+}
+
 export async function path_walk(path: string, pw: PathWalk): Promise<Path> {
 	pw.last_type = 'root';
 	pw.flags |= Lookup.Parent;
 
-	for (const component of path.split('/')) {
-		if (!component) continue;
+	let component: string,
+		depth = 0;
 
+	while (path[0] === '/') path = path.slice(1);
+
+	for (;;) {
 		const idmap = pw.path.mnt!.idMap;
 		await check_lookup(idmap, pw);
 
 		pw.last = path;
+		const slash_at = path.indexOf('/');
+		if (slash_at === -1) {
+			component = path;
+			path = '';
+		} else {
+			let j = slash_at + 1;
+			while (path.charCodeAt(j) === 47) j++;
+			component = path.slice(0, slash_at);
+			path = path.slice(j);
+		}
+
 		switch (component) {
 			case '..':
 				pw.last_type = '..';
@@ -212,13 +236,40 @@ export async function path_walk(path: string, pw: PathWalk): Promise<Path> {
 			case '.':
 				pw.last_type = '.';
 				break;
-			default:
+			default: {
 				pw.last_type = 'norm';
 				pw.state &= ~PW_Jumped;
 
-			// TO BE CONTINUED
-			// I spent 6 hours on this today.
+				const parent = pw.path.dentry;
+				if (parent && parent.flags & DentryFlags.OP_HASH) parent.op.hash?.(parent, pw.last);
+			}
 		}
+
+		let link: string;
+
+		if (path) link = walk_component(pw, Walk.More);
+		else {
+			if (!depth) {
+				pw.dir_uid = map_inode_uid(idmap, pw.inode);
+				pw.dir_mode = pw.inode.mode;
+				pw.flags &= ~Lookup.Parent;
+				return pw.path;
+			}
+			path = pw.links[--depth].name;
+			link = walk_component(pw, 0);
+		}
+
+		if (link) {
+			pw.links[depth++].name = link;
+			path = link;
+		}
+
+		if ((pw.path.dentry!.flags & DentryFlags.ENTRY_TYPE) != DentryFlags.DIRECTORY_TYPE) {
+			if (pw.flags & Lookup.RCU) try_ref_walk(pw);
+			else throw E.ENOTDIR;
+		}
+
+		// ... todo ...
 	}
 }
 

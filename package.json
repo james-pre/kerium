@@ -3,9 +3,6 @@
 	"version": "2.0.0-devel-0",
 	"description": "Complete cross-host emulation of Linux in TypeScript",
 	"author": "James Prevett <jp@jamespre.dev> (https://jamespre.dev)",
-	"bin": {
-		"devel-license": "scripts/license.js"
-	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/james-pre/kerium.git"
@@ -18,7 +15,7 @@
 	"bugs": {
 		"url": "https://github.com/james-pre/kerium/issues"
 	},
-	"license": "GPL-3.0-or-later",
+	"license": "GPL-3.0-or-later WITH EXCEPTIONS",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -33,6 +30,7 @@
 	"scripts": {
 		"format:check": "prettier --check .",
 		"format": "prettier --write .",
+		"check-license": "npx lice src -a && npx lice non-gpl/src -l LGPL-3.0-or-later",
 		"lint": "tsc --noEmit && eslint src",
 		"test": "tsx --test",
 		"prepublishOnly": "npx tsc"
@@ -48,6 +46,7 @@
 	},
 	"dependencies": {
 		"@endo/panic": "^1.0.1",
-		"utilium": "^2.0.0"
+		"memium": "^0.3.8",
+		"utilium": "^2.5.0"
 	}
 }

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later WITH EXCEPTIONS
 import { emerg } from './log.js';
 import { panic as __panic } from '@endo/panic';
 

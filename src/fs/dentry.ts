@@ -82,5 +82,6 @@ export enum DentryFlags {
  */
 export interface DentryOperations {
 	delete?(dir: Readonly<Dentry>): Promise<void>;
-	init?(dir: Dentry): Promise<void>;
+	init?(dir: Dentry): void;
+	hash?(dentry: Readonly<Dentry>, name: string): void;
 }

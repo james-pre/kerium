@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later WITH EXCEPTIONS
 import { Capability as Cap, capable_inode_id } from '../capability.js';
 import { Errno as E } from '../error.js';
 import { lock } from '../lock.js';

@@ -52,7 +52,7 @@ for (const file of files) {
 		const tokens = inside[1]
 			.split(',')
 			.map(t => t.trim())
-			.filter(Boolean);
+			.filter(v => v);
 
 		const fn = tokens[0] || '';
 		if (!fn) continue;

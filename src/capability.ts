@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later WITH EXCEPTIONS
 import { map_inode_gid, map_inode_uid, type MountIDMap } from './fs/idmapping.js';
 import type { Inode } from './fs/inode.js';
 import { crit } from './log.js';

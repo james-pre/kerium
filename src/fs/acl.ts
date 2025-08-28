@@ -43,8 +43,11 @@ export interface ACLEntry {
 /**
  * @todo [share]
  */
-export interface ACL {
-	entries: ACLEntry[];
+export class ACL {
+	/**
+	 * @todo Convert to sharable array
+	 */
+	entries: ACLEntry[] = [];
 }
 
 export function is_posix_acl(inode: Readonly<Inode>): boolean {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later WITH EXCEPTIONS
 // Copyright (c) 2025 James Prevett
 import type { Lock } from '../lock.js';
-import type { ACL, ACLType } from './acl.js';
+import { ACL, ACLType } from './acl.js';
 import type { Dentry } from './dentry.js';
 import type { MountIDMap } from './idmapping.js';
 import type { Superblock } from './super.js';
@@ -63,33 +63,33 @@ export const userModifiableFlags = 0x000380ff;
 /**
  * @todo [share]
  */
-export interface Inode {
-	readonly op: InodeOperations;
-	sb: Superblock;
-	_lock: Lock;
+export class Inode {
+	readonly op!: InodeOperations;
+	sb!: Superblock;
+	_lock!: Lock;
 
-	mode: number;
-	opflags: number;
-	uid: number;
-	gid: number;
-	flags: number;
-	ino: bigint;
-	nlink: number;
-	rdev: number;
-	size: bigint;
-	atime_sec: bigint;
-	mtime_sec: bigint;
-	ctime_sec: bigint;
-	atime_nsec: number;
-	mtime_nsec: number;
-	ctime_nsec: number;
-	generation: number;
-	blocks: number;
+	mode: number = 0;
+	opflags: number = 0;
+	uid: number = 0;
+	gid: number = 0;
+	flags: number = 0;
+	ino: bigint = 0n;
+	nlink: number = 0;
+	rdev: number = 0;
+	size: bigint = 0n;
+	atime_sec: bigint = 0n;
+	mtime_sec: bigint = 0n;
+	ctime_sec: bigint = 0n;
+	atime_nsec: number = 0;
+	mtime_nsec: number = 0;
+	ctime_nsec: number = 0;
+	generation: number = 0;
+	blocks: number = 0;
 	/** @atomic */
-	version: bigint;
+	version: bigint = 0n;
 
-	acl: ACL;
-	default_acl: ACL;
+	acl: ACL = new ACL();
+	default_acl: ACL = new ACL();
 }
 
 export enum InodeOp {
