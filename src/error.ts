@@ -28,6 +28,7 @@ export enum Errno {
 	ECHILD = 10,
 	/** Resource temporarily unavailable */
 	EAGAIN = 11,
+	EWOULDBLOCK = EAGAIN,
 	/** Out of memory */
 	ENOMEM = 12,
 	/** Permission denied */

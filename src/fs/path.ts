@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later WITH EXCEPTIONS
 // Copyright (c) 2025 James Prevett
 
-import { BUG_ON } from '../bad.js';
 import { Errno as E } from '../error.js';
 import { lock } from '../lock.js';
 import { define_syscall } from '../syscalls.js';
@@ -72,7 +71,6 @@ export type PathWalkLastType = 'norm' | 'root' | '.' | '..';
 export interface PathWalkSavedLink {
 	link: Path;
 	name: string;
-	seq: number;
 }
 
 /**
@@ -98,85 +96,6 @@ export interface PathWalk {
 	/** VFS uid */
 	dir_uid?: number;
 	dir_mode?: number;
-
-	m_seq: number;
-}
-
-const PW_Root_Preset = 1;
-const PW_Root_Grabbed = 2;
-const PW_Jumped = 4;
-
-function drop_links(pw: PathWalk): void {
-	for (let i = pw.depth; i; i--) {
-		const last = pw.links[i - 1];
-	}
-}
-
-function leave_rcu(pw: PathWalk): void {
-	pw.flags &= ~Lookup.RCU;
-}
-
-function __legitimize_path(path: Path, seq: number, m_seq: number): boolean {
-	const res = 0; // __legitimize_mnt(path.mnt, m_seq);
-	if (res) {
-		if (res > 0) path.mnt = null;
-		path.dentry = null;
-		return false;
-	}
-
-	if (/* !lockref_get_not_dead(path.dentry.d_lockref) */ false) {
-		path.dentry = null;
-		return false;
-	}
-
-	return true; // return !read_seqcount_retry(path.dentry.seq, seq);
-}
-
-function legitimize_path(pw: PathWalk, path: Path, seq?: number): boolean {
-	return __legitimize_path(path, seq!, pw.m_seq);
-}
-
-function legitimize_links(pw: PathWalk): boolean {
-	if (pw.flags & Lookup.Cached) {
-		drop_links(pw);
-		pw.depth = 0;
-		return false;
-	}
-
-	for (let i = 0; i < pw.depth; i++) {
-		const last = pw.links[i];
-		if (!legitimize_path(pw, last.link, last.seq)) {
-			drop_links(pw);
-			pw.depth = i + 1;
-			return false;
-		}
-	}
-
-	return true;
-}
-
-function legitimize_root(pw: PathWalk): boolean {
-	if (!pw.root.mnt || pw.state & PW_Root_Preset) return true;
-	pw.state |= PW_Root_Grabbed;
-	return legitimize_path(pw, pw.root);
-}
-
-function try_ref_walk(pw: PathWalk): boolean {
-	const parent = pw.path.dentry!;
-
-	BUG_ON(!(pw.flags & Lookup.RCU));
-
-	using _ = { [Symbol.dispose]: () => leave_rcu(pw) };
-
-	if (!legitimize_links(pw)) return false;
-	if (!legitimize_path(pw, pw.path)) {
-		pw.path.mnt = null;
-		pw.path.dentry = null;
-		return false;
-	}
-	if (!legitimize_root(pw)) return false;
-	BUG_ON(pw.inode != parent.inode);
-	return true;
 }
 
 export async function check_lookup(idmap: MountIDMap, pw: PathWalk): Promise<void> {
@@ -186,7 +105,6 @@ export async function check_lookup(idmap: MountIDMap, pw: PathWalk): Promise<voi
 		await check_inode_permission(idmap, pw.inode, mask);
 	} catch (e) {
 		if (!(pw.flags & Lookup.RCU)) throw e;
-		if (!try_ref_walk(pw)) throw E.ECHILD;
 		if (e != E.ECHILD) throw e;
 		await check_inode_permission(idmap, pw.inode, May.Exec);
 	}
@@ -265,7 +183,6 @@ export async function path_walk(path: string, pw: PathWalk): Promise<Path> {
 		}
 
 		if ((pw.path.dentry!.flags & DentryFlags.ENTRY_TYPE) != DentryFlags.DIRECTORY_TYPE) {
-			if (pw.flags & Lookup.RCU) try_ref_walk(pw);
 			else throw E.ENOTDIR;
 		}
 
