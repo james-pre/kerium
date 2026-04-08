@@ -46,5 +46,14 @@
 	},
 	"dependencies": {
 		"utilium": "^3.0.0"
+	},
+	"prettier": {
+		"singleQuote": true,
+		"useTabs": true,
+		"trailingComma": "es5",
+		"tabWidth": 4,
+		"printWidth": 120,
+		"arrowParens": "avoid",
+		"experimentalOperatorPosition": "start"
 	}
 }
