@@ -205,7 +205,7 @@ export function format(entry: Entry): string[] {
 	return typeof formatted == 'string' ? [formatted] : Array.from(formatted);
 }
 
-let _output: (...message: string[]) => unknown = console.error;
+let _output: (...message: string[]) => unknown = 'process' in globalThis ? console.error : console.log;
 
 function output(entry: Entry) {
 	if (entry.level > minLevel) return;
