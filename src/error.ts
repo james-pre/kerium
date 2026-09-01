@@ -53,6 +53,8 @@ export enum Errno {
 	ENFILE = 23,
 	/** Too many open files */
 	EMFILE = 24,
+	/** Inappropriate ioctl for device */
+	ENOTTY = 25,
 	/** Text file busy */
 	ETXTBSY = 26,
 	/** File is too big */
@@ -296,6 +298,7 @@ const errnoMessages = {
 	[Errno.EINVAL]: 'invalid argument',
 	[Errno.ENFILE]: 'file table overflow',
 	[Errno.EMFILE]: 'too many open files',
+	[Errno.ENOTTY]: 'inappropriate ioctl for device',
 	[Errno.ETXTBSY]: 'text file is busy',
 	[Errno.EFBIG]: 'file too large',
 	[Errno.ENOSPC]: 'no space left on device',
