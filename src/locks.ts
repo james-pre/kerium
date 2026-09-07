@@ -134,3 +134,80 @@ export class RwLockable {
 		return this._rwLock.mode;
 	}
 }
+
+/** A synchronization primitive that allows up to `max` concurrent holders. */
+export class Semaphore {
+	/** Release promises for every currently held slot */
+	#active = new Set<Promise<void>>();
+
+	/** Callbacks that hand a freed slot to the next waiter, in order */
+	#pending: (() => void)[] = [];
+
+	constructor(public readonly max: number) {
+		if (!Number.isInteger(max) || max < 1) throw withErrno('EINVAL', 'Semaphore max must be a positive integer');
+	}
+
+	/** Number of slots currently held */
+	get active(): number {
+		return this.#active.size;
+	}
+
+	/** Number of acquisitions waiting for a slot */
+	get waiting(): number {
+		return this.#pending.length;
+	}
+
+	/** Whether a slot can be acquired synchronously. This value may be invalid after an `await` */
+	get isAvailable(): boolean {
+		return this.#active.size < this.max;
+	}
+
+	/** Actually take a slot. The caller must have already added `held` to `#active` */
+	#take(held: Promise<void>, resolve: () => void): LockRelease {
+		let released = false;
+		const release = (): void => {
+			if (released) return;
+			released = true;
+			this.#active.delete(held);
+			resolve();
+			this.#pending.shift()?.();
+		};
+		release[Symbol.dispose] = release;
+		return release;
+	}
+
+	/** Acquire a slot, waiting for one to be freed if the semaphore is full */
+	async get(): Promise<LockRelease> {
+		const { promise, resolve } = Promise.withResolvers<void>();
+
+		if (this.#active.size >= this.max) {
+			const grant = Promise.withResolvers<void>();
+			this.#pending.push(() => {
+				this.#active.add(promise);
+				grant.resolve();
+			});
+			await grant.promise;
+		} else {
+			this.#active.add(promise);
+		}
+
+		return this.#take(promise, resolve);
+	}
+
+	/**
+	 * Acquire a slot synchronously. Does not support waiting for a slot to be freed.
+	 * @throws EAGAIN if all slots are currently held
+	 */
+	getSync(): LockRelease {
+		if (this.#active.size >= this.max) throw withErrno('EAGAIN');
+
+		const { promise, resolve } = Promise.withResolvers<void>();
+		this.#active.add(promise);
+		return this.#take(promise, resolve);
+	}
+
+	/** Wait until every currently held slot has been released */
+	async drain(): Promise<void> {
+		while (this.#active.size) await Promise.all(this.#active);
+	}
+}
